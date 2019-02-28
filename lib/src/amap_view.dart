@@ -364,7 +364,6 @@ class AMapView extends StatefulWidget {
         {
           Map args = call.arguments;
           String id = args["id"];
-          print("$id $args");
           GlobalKey key = map[id];
           if(key!=null){
             AMapView view = key.currentWidget;
@@ -377,7 +376,6 @@ class AMapView extends StatefulWidget {
         {
         Map args = call.arguments;
         String id = args["id"];
-        print("$id $args");
         GlobalKey key = map[id];
         if(key!=null){
           AMapView view = key.currentWidget;
@@ -388,7 +386,6 @@ class AMapView extends StatefulWidget {
       case "poiResult": {
         Map args = call.arguments;
         String id = args["id"];
-        print("$id $args");
         GlobalKey key = map[id];
         if(key!=null){
           AMapView view = key.currentWidget;
@@ -399,7 +396,6 @@ class AMapView extends StatefulWidget {
       case "geoFenceChange": {
         Map args = call.arguments;
         String id = args["id"];
-        print("$id $args");
         GlobalKey key = map[id];
         if(key!=null){
           AMapView view = key.currentWidget;
@@ -471,7 +467,6 @@ class _AMapViewState extends State<AMapView>{
       _y = y;
       _width = width;
       _height = height;
-      print("change position $x $y");
       AMapView.channel.invokeMethod('rect', {
         "id":widget.key.toString(),
         "x": trans.x,
