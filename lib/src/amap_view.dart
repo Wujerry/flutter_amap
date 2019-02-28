@@ -14,6 +14,12 @@ import 'package:flutter/rendering.dart';
 
 typedef void LocationChange(Location location);
 
+typedef void CameraChange(Location location);
+
+typedef void PoiResult(List<Map> list);
+
+typedef void GeoFenceChange(int status);
+
 /**
  * 地图类型
  *
@@ -74,6 +80,22 @@ class AMapRouter extends  MaterialPageRoute{
 
 }
 
+class GeoFenceSetting {
+  LatLng latLng;
+  double radius;
+  String key;
+
+  GeoFenceSetting({this.latLng,this.key,this.radius});
+
+  Map toMap(){
+    return {
+      'lat': this.latLng.latitude,
+      'lng': this.latLng.longitude,
+      'radius': this.radius,
+      'customID': this.key
+    };
+  }
+}
 
 class AMapView extends StatefulWidget {
 
@@ -82,6 +104,14 @@ class AMapView extends StatefulWidget {
    * 设定定位的最小更新距离。默认为kCLDistanceFilterNone=-1，会提示任何移动
    */
   final double distanceFilter;
+
+  /**
+   * 单次定位 默认false
+   */
+  final bool locateOnce;
+
+  //地理围栏
+  final GeoFenceSetting geoFence;
 
   /**
    * 是否显示室内地图
@@ -184,7 +214,11 @@ class AMapView extends StatefulWidget {
 
   final LocationChange onLocationChange;
 
+  final CameraChange onCameraChange;
 
+  final PoiResult onPoiResult;
+
+  final GeoFenceChange onGeoFenceChange;
 
 
   /**
@@ -216,6 +250,7 @@ class AMapView extends StatefulWidget {
 
   AMapView({
     //ios
+    this.locateOnce: false,
     this.showsScale : true,
     this.showsLabels : true,
     this.showsCompass : true,
@@ -236,7 +271,10 @@ class AMapView extends StatefulWidget {
     this.scrollEnabled : true,
     this.mapType : MapType.standard,
     this.onLocationChange,
-
+    this.onCameraChange,
+    this.onPoiResult,
+    this.geoFence,
+    this.onGeoFenceChange,
     Key key,
 
 
@@ -274,8 +312,8 @@ class AMapView extends StatefulWidget {
       "showsScale":this.showsScale,
       "zoomEnabled":this.zoomEnabled,
       "zoomLevel":this.zoomLevel,
-
-
+      "locateOnce": this.locateOnce,
+      "geoFence": this.geoFence != null ? this.geoFence.toMap() : null,
 
       //"locationInterval":this.locationInterval,
       //"showsLocationButton":this.showsLocationButton,
@@ -335,6 +373,40 @@ class AMapView extends StatefulWidget {
           //_locationChangeStreamController.add(Location.fromMap(args));
           return new Future.value("");
         }
+      case "cameraUpdate":
+        {
+        Map args = call.arguments;
+        String id = args["id"];
+        print("$id $args");
+        GlobalKey key = map[id];
+        if(key!=null){
+          AMapView view = key.currentWidget;
+          view?.onCameraChange(Location.fromMap(args));
+        }
+        return new Future.value("");
+      }
+      case "poiResult": {
+        Map args = call.arguments;
+        String id = args["id"];
+        print("$id $args");
+        GlobalKey key = map[id];
+        if(key!=null){
+          AMapView view = key.currentWidget;
+          view?.onPoiResult(args['list']);
+        }
+        return new Future.value("");
+      }
+      case "geoFenceChange": {
+        Map args = call.arguments;
+        String id = args["id"];
+        print("$id $args");
+        GlobalKey key = map[id];
+        if(key!=null){
+          AMapView view = key.currentWidget;
+          view?.onGeoFenceChange(args['status']);
+        }
+        return new Future.value("");
+      }
 
     }
     return new Future.value( "");
@@ -346,6 +418,16 @@ class AMapView extends StatefulWidget {
     MethodChannel c = const MethodChannel("flutter_amap");
     c.invokeMethod('setApiKey', apiKey);
     isSetKey =  true;
+  }
+
+  static void poiSearch(LatLng latLng,String keyword,GlobalKey key) {
+    MethodChannel c = const MethodChannel("flutter_amap");
+    c.invokeMethod('poiSearch', {
+      'keyword': keyword,
+      'id': key.toString(),
+      'lat': latLng.latitude,
+      'lng': latLng.longitude
+    });
   }
 
 

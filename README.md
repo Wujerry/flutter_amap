@@ -4,9 +4,6 @@
 
 展示原生android、ios高德地图，并与flutter交互。
 
-注意：随着flutter版本的提升， 本项目也会随之更新，目前这个版本只能在单独的controller或者activity中打开高德地图。
-
-
 ## Getting Started
 
 ### 集成高德地图android版本
@@ -112,10 +109,11 @@ import 'package:flutter_amap/flutter_amap.dart';
 * [x] 地图的展示和隐藏
 * [x] 设置地图位置
 * [x] 基本地图选项
-* [x] 定位回调
-* [ ] 展示定制的地图Mark
-* [ ] 搜索api
-* [ ] 更多api
+* [x] 定位回调(修复android)
+* [x] Camera移动回调(修复android)
+* [x] 定位模式(单次定位, 连续定位)
+* [x] POI(android)
+* [x] 地理围栏(android)
 
 
 

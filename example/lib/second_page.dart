@@ -31,8 +31,24 @@ class _SecondPage extends State<SecondPage>{
           key:_key0,
           centerCoordinate:  LatLng(39.9242, 116.3979),
           zoomLevel: 13.0,
-          mapType: MapType.night,
-          showsUserLocation: true
+          mapType: MapType.standard,
+          showsUserLocation: true,
+        onGeoFenceChange: (status){
+            if(status == 1){
+              print('ininininininininininininininin');
+            }else if (status == 2){
+              print('outoutoutoutoutoutoutoutoutoutoutoutoutout');
+            }else if(status == 3){
+              print('staystaystaystaystaystaystaystay');
+            }else if(status == 4){
+              print('定位失败');
+            }
+          print('ggggggg' + status.toString());
+        },
+        geoFence: GeoFenceSetting(latLng: LatLng(29.66448, 106.4968),
+            radius: 100,
+            key: _key0.toString()
+        ),
       ),
 
     );

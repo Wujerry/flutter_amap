@@ -31,6 +31,7 @@
             android:name="com.amap.api.v2.apikey"
             android:value="9f583b6d4c5a1f05120fbde2c117d18b" />
 
+        <service android:name="com.amap.api.location.APSService"></service>
 
         <activity
             android:name=".MainActivity"

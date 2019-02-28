@@ -112,22 +112,35 @@ class _MyAppState extends State<MyApp> {
                     first = location;
                   });
                 },
-                centerCoordinate:  LatLng(39.9242, 116.3979),
+                locateOnce: true,
+//                centerCoordinate:  LatLng(60.9242, 116.3979),
                 zoomLevel: 13.0,
-                mapType: MapType.night,
+                mapType: MapType.standard,
                 showsUserLocation: true
             )):Container(),
              Expanded(child:
             AMapView(
                 onLocationChange: (Location location){
-                  setState(() {
-                    second = location;
-                  });
+//                  print('lllllllllll'+location.toString());
+                },
+                onCameraChange: (Location location){
+//                  print('cccccccccccc' + location.toString());
+                  AMapView.poiSearch(LatLng(location.latitude, location.longitude), '', _key0);
+                },
+                onPoiResult: (r){
+//                  print(r);
+                },
+                onGeoFenceChange: (status){
+//                  print('ggggggg' + status.toString());
                 },
                 key:_key1,
+                geoFence: GeoFenceSetting(latLng: LatLng(39.9242, 116.3979),
+                  radius: 100,
+                  key: _key1.toString()
+                ),
                 centerCoordinate:  LatLng(39.9242, 116.3979),
                 zoomLevel: 13.0,
-                mapType: MapType.night,
+                mapType: MapType.standard,
                 showsUserLocation: true
             )),
           ],
