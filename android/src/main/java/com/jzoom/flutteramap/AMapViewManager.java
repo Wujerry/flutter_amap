@@ -154,6 +154,10 @@ public class AMapViewManager {
         poiSearch.searchPOIAsyn();
     }
 
+    public void moveCamera(AMapView view, double lat, double lng){
+        view.getMap().moveCamera(CameraUpdateFactory.changeLatLng(new LatLng(lat, lng)));
+    }
+
     public void updateProps(AMapView view, Map<String, Object> mapView) {
 
         AMap aMap = view.getMap();
