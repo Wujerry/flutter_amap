@@ -387,12 +387,10 @@ class AMapView extends StatefulWidget {
         Map args = call.arguments;
         String id = args["id"];
         GlobalKey key = map[id];
-        print(123123123);
         if(key!=null){
           AMapView view = key.currentWidget;
-          print(2222222222);
-          print(args['list']);
-          view?.onPoiResult(args['list']);
+          var l =  args['list'];
+          view?.onPoiResult(l);
         }
         return new Future.value("");
       }
