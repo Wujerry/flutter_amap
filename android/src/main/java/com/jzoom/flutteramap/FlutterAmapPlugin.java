@@ -115,7 +115,16 @@ public class FlutterAmapPlugin implements MethodCallHandler {
                 ViewGroup viewGroup = (ViewGroup) view.getParent();
                 viewGroup.removeView(view);
             }
-        } else if ("setApiKey".equals(method)) {
+        } else if ("moveCamera".equals(method)){
+            Map<String, Object> args = (Map<String, Object>) call.arguments;
+            String id = (String) args.get("id");
+            double lat = (double) args.get("lat");
+            double lng = (double) args.get("lng");
+            final AMapView layout = getView(id);
+            if(layout != null){
+                manager.moveCamera(layout, lat, lng);
+            }
+        }else if ("setApiKey".equals(method)) {
             result.success(true);
         } else if ("dismiss".equals(method)) {
 

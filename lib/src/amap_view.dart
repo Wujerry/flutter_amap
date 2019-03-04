@@ -436,6 +436,15 @@ class AMapView extends StatefulWidget {
     });
   }
 
+  static void moveCamera(LatLng latLng, GlobalKey key){
+    MethodChannel c = const MethodChannel("flutter_amap");
+    c.invokeMethod('moveCamera', {
+      'id': key.toString(),
+      'lat': latLng.latitude,
+      'lng': latLng.longitude
+    });
+  }
+
 
 }
 
