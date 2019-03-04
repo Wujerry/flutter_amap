@@ -359,6 +359,8 @@ class AMapView extends StatefulWidget {
 
   static Future<dynamic> _handleMethod(MethodCall call) async {
     String method = call.method;
+    print('--------method call-----');
+    print(method);
     switch(method){
       case "locationUpdate":
         {
@@ -379,19 +381,26 @@ class AMapView extends StatefulWidget {
         GlobalKey key = map[id];
         if(key!=null){
           AMapView view = key.currentWidget;
+          try {
+            var loc = Location.fromMap(args);
+          }catch(e){
+            print(e);
+          }
           view?.onCameraChange(Location.fromMap(args));
         }
         return new Future.value("");
       }
       case "poiResult": {
         Map args = call.arguments;
-        String id = args["id"];
-        GlobalKey key = map[id];
-        if(key!=null){
-          AMapView view = key.currentWidget;
+        print(args);
+        map.forEach((k,v) {
+          if(v!=null){
+          AMapView view = v.currentWidget;
           var l =  args['list'];
           view?.onPoiResult(l);
         }
+        }); 
+        
         return new Future.value("");
       }
       case "geoFenceChange": {
