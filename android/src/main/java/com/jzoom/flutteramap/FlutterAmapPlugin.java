@@ -110,9 +110,10 @@ public class FlutterAmapPlugin implements MethodCallHandler {
         } else if ("remove".equals(method)) {
             Map<String, Object> args = (Map<String, Object>) call.arguments;
             String id = (String) args.get("id");
-            View view = map.get(id);
+            AMapView view = map.get(id);
             if (view != null) {
                 ViewGroup viewGroup = (ViewGroup) view.getParent();
+                view.onDestroy();
                 viewGroup.removeView(view);
                 map.remove(id);
             }
