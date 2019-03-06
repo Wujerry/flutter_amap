@@ -1,4 +1,3 @@
-
 import 'package:flutter_amap/flutter_amap.dart';
 
 import 'latlng.dart';
@@ -10,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/rendering.dart';
-
 
 typedef void LocationChange(Location location);
 
@@ -33,20 +31,18 @@ enum MapType { standard, satellite, night, nav, bus }
 
 /// 这个应该有更好的实现，比如在最外层增加InheritedWidget,
 /// 内部可以感知并实现地图的登记处理
-class AMapRouter extends  MaterialPageRoute{
+class AMapRouter extends MaterialPageRoute {
   final List<GlobalKey> keys;
-  AMapRouter({
-    @required WidgetBuilder builder,
-    this.keys
-  }) : super(builder:builder);
+  AMapRouter({@required WidgetBuilder builder, this.keys})
+      : super(builder: builder);
 
   @override
   bool didPop(result) {
-    for(int i=0; i < keys.length; ++i){
+    for (int i = 0; i < keys.length; ++i) {
       //SHOW,这里应该有更好的实现方式，比如平移动画，将地图平滑展示
-      new Future.delayed(new Duration(milliseconds: 300))
-        .then((_){
-        AMapView.channel.invokeMethod("hide",{"id":keys[i].toString(),"hide":false});
+      new Future.delayed(new Duration(milliseconds: 300)).then((_) {
+        AMapView.channel
+            .invokeMethod("hide", {"id": keys[i].toString(), "hide": false});
         GlobalKey key = keys[i];
         _AMapViewState state = key.currentState;
         state?.setSize();
@@ -59,25 +55,21 @@ class AMapRouter extends  MaterialPageRoute{
   Future<RoutePopDisposition> willPop() {
     /// 应该将本页面的移除掉（动画评议掉）
 
-
     return super.willPop();
   }
 
   @override
   TickerFuture didPush() {
     //hide,这里应该有更好的实现方式，比如平移动画，将地图隐藏起来
-    for(int i=0; i < keys.length; ++i){
-      AMapView.channel.invokeMethod("hide",{"id":keys[i].toString(),"hide":true});
+    for (int i = 0; i < keys.length; ++i) {
+      AMapView.channel
+          .invokeMethod("hide", {"id": keys[i].toString(), "hide": true});
 
-
-     // AMapView.channel.invokeMethod("hide",{"id":keys[i].toString(),"hide":true});
+      // AMapView.channel.invokeMethod("hide",{"id":keys[i].toString(),"hide":true});
     }
 
     return super.didPush();
   }
-
-
-
 }
 
 class GeoFenceSetting {
@@ -85,9 +77,9 @@ class GeoFenceSetting {
   double radius;
   String key;
 
-  GeoFenceSetting({this.latLng,this.key,this.radius});
+  GeoFenceSetting({this.latLng, this.key, this.radius});
 
-  Map toMap(){
+  Map toMap() {
     return {
       'lat': this.latLng.latitude,
       'lng': this.latLng.longitude,
@@ -98,8 +90,6 @@ class GeoFenceSetting {
 }
 
 class AMapView extends StatefulWidget {
-
-
   /**
    * 设定定位的最小更新距离。默认为kCLDistanceFilterNone=-1，会提示任何移动
    */
@@ -143,15 +133,10 @@ class AMapView extends StatefulWidget {
    */
   final bool showsCompass;
 
-
-
   /**
    * 是否显示比例尺, 默认YES
    */
   final bool showsScale;
-
-
-
 
   /**
    * 最大缩放级别
@@ -183,8 +168,6 @@ class AMapView extends StatefulWidget {
    */
   final Region limitRegion;
 
-
-
   /**
    * 旋转角度
    */
@@ -205,12 +188,7 @@ class AMapView extends StatefulWidget {
    */
   final bool rotateEnabled;
 
-
-
-
   final MapType mapType;
-
-
 
   final LocationChange onLocationChange;
 
@@ -219,7 +197,6 @@ class AMapView extends StatefulWidget {
   final PoiResult onPoiResult;
 
   final GeoFenceChange onGeoFenceChange;
-
 
   /**
    * 是否显示定位按钮
@@ -247,29 +224,28 @@ class AMapView extends StatefulWidget {
    */
   //final bool tiltEnabled;
 
-
   AMapView({
     //ios
     this.locateOnce: false,
-    this.showsScale : true,
-    this.showsLabels : true,
-    this.showsCompass : true,
-    this.showsBuildings : true,
-    this.showsIndoorMap : false,
-    this.showsIndoorMapControl : true,
-    this.showsUserLocation : false,
-    this.zoomEnabled : true,
-    this.distanceFilter : -1.0,
-    this.centerCoordinate ,
-    this.limitRegion ,
-    this.region ,
-    this.zoomLevel : 10.0,
-    this.maxZoomLevel : 20.0,
-    this.minZoomLevel : 3.0,
-    this.rotateEnabled : false,
-    this.rotationDegree : 0.0,
-    this.scrollEnabled : true,
-    this.mapType : MapType.standard,
+    this.showsScale: true,
+    this.showsLabels: true,
+    this.showsCompass: true,
+    this.showsBuildings: true,
+    this.showsIndoorMap: false,
+    this.showsIndoorMapControl: true,
+    this.showsUserLocation: false,
+    this.zoomEnabled: true,
+    this.distanceFilter: -1.0,
+    this.centerCoordinate,
+    this.limitRegion,
+    this.region,
+    this.zoomLevel: 10.0,
+    this.maxZoomLevel: 20.0,
+    this.minZoomLevel: 3.0,
+    this.rotateEnabled: false,
+    this.rotationDegree: 0.0,
+    this.scrollEnabled: true,
+    this.mapType: MapType.standard,
     this.onLocationChange,
     this.onCameraChange,
     this.onPoiResult,
@@ -277,41 +253,38 @@ class AMapView extends StatefulWidget {
     this.onGeoFenceChange,
     Key key,
 
-
     //this.showsLocationButton : false,
     //this.showsZoomControls : false,
     //this.locationInterval: 2000,
     //this.tilt : 0,
     //this.tiltEnabled : false,
-
-
-  }) : super( key: key );
+  }) : super(key: key);
 
   Map toMap() {
     return {
-      "centerCoordinate":this.centerCoordinate != null ? this.centerCoordinate.toMap() : null,
-      "distanceFilter":this.distanceFilter,
-      "limitRegion":this.limitRegion != null ? this.limitRegion.toMap() : null,
-      "showsUserLocation":this.showsUserLocation,
+      "centerCoordinate":
+          this.centerCoordinate != null ? this.centerCoordinate.toMap() : null,
+      "distanceFilter": this.distanceFilter,
+      "limitRegion": this.limitRegion != null ? this.limitRegion.toMap() : null,
+      "showsUserLocation": this.showsUserLocation,
 
-      "maxZoomLevel":this.maxZoomLevel,
-      "minZoomLevel":this.minZoomLevel,
-      "region":this.region != null ? this.region.toMap() : null,
-      "rotateEnabled":this.rotateEnabled,
+      "maxZoomLevel": this.maxZoomLevel,
+      "minZoomLevel": this.minZoomLevel,
+      "region": this.region != null ? this.region.toMap() : null,
+      "rotateEnabled": this.rotateEnabled,
 
-      "rotationDegree":this.rotationDegree,
-      "scrollEnabled":this.scrollEnabled,
-      "showsBuildings":this.showsBuildings,
-      "showsCompass":this.showsCompass,
-      "showsIndoorMap":this.showsIndoorMap,
-      "showsIndoorMapControl":this.showsIndoorMapControl,
-      "showsLabels":this.showsLabels,
+      "rotationDegree": this.rotationDegree,
+      "scrollEnabled": this.scrollEnabled,
+      "showsBuildings": this.showsBuildings,
+      "showsCompass": this.showsCompass,
+      "showsIndoorMap": this.showsIndoorMap,
+      "showsIndoorMapControl": this.showsIndoorMapControl,
+      "showsLabels": this.showsLabels,
 
-
-      "mapType":this.mapType.index,
-      "showsScale":this.showsScale,
-      "zoomEnabled":this.zoomEnabled,
-      "zoomLevel":this.zoomLevel,
+      "mapType": this.mapType.index,
+      "showsScale": this.showsScale,
+      "zoomEnabled": this.zoomEnabled,
+      "zoomLevel": this.zoomLevel,
       "locateOnce": this.locateOnce,
       "geoFence": this.geoFence != null ? this.geoFence.toMap() : null,
 
@@ -323,99 +296,95 @@ class AMapView extends StatefulWidget {
     };
   }
 
-
-
   @override
   State<StatefulWidget> createState() {
     return new _AMapViewState();
   }
 
-  static Map<String,GlobalKey> map = {
-
-  };
+  static Map<String, GlobalKey> map = {};
 
   static int counter = 0;
 
-  static GlobalKey createKey(GlobalKey orgKey){
-    if(counter == 0){
+  static GlobalKey createKey(GlobalKey orgKey) {
+    if (counter == 0) {
       channel.setMethodCallHandler(_handleMethod);
     }
-    if(orgKey!=null){
+    if (orgKey != null) {
       remove(orgKey);
     }
-    GlobalKey key = new GlobalKey(debugLabel: "${++counter}" );
-    map[ key.toString() ] =  key;
+    GlobalKey key = new GlobalKey(debugLabel: "${++counter}");
+    map[key.toString()] = key;
     return key;
   }
 
-
-  static void remove( GlobalKey key ){
-    AMapView.channel.invokeMethod('remove',{
-      "id": key.toString()
-    });
+  static void remove(GlobalKey key) {
+    map.remove(key);
+    AMapView.channel.invokeMethod('remove', {"id": key.toString()});
   }
-  static MethodChannel channel = const MethodChannel('flutter_amap');
 
+  static MethodChannel channel = const MethodChannel('flutter_amap');
 
   static Future<dynamic> _handleMethod(MethodCall call) async {
     String method = call.method;
     print('--------method call-----');
     print(method);
-    switch(method){
+    switch (method) {
       case "locationUpdate":
         {
           Map args = call.arguments;
           String id = args["id"];
           GlobalKey key = map[id];
-          if(key!=null){
+          if (key != null) {
             AMapView view = key.currentWidget;
-            view?.onLocationChange( Location.fromMap(args) );
+            view?.onLocationChange(Location.fromMap(args));
           }
           //_locationChangeStreamController.add(Location.fromMap(args));
           return new Future.value("");
         }
       case "cameraUpdate":
         {
-        Map args = call.arguments;
-        String id = args["id"];
-        GlobalKey key = map[id];
-        if(key!=null){
-          AMapView view = key.currentWidget;
-          try {
-            var loc = Location.fromMap(args);
-          }catch(e){
-            print(e);
+          Map args = call.arguments;
+          String id = args["id"];
+          GlobalKey key = map[id];
+          if (key != null) {
+            AMapView view = key.currentWidget;
+            try {
+              var loc = Location.fromMap(args);
+            } catch (e) {
+              print(e);
+            }
+            view?.onCameraChange(Location.fromMap(args));
           }
-          view?.onCameraChange(Location.fromMap(args));
+          return new Future.value("");
         }
-        return new Future.value("");
-      }
-      case "poiResult": {
-        Map args = call.arguments;
-        print(args);
-        map.forEach((k,v) {
-          if(v!=null){
-          AMapView view = v.currentWidget;
-          var l =  args['list'];
-          view?.onPoiResult(l);
-        }
-        }); 
-        
-        return new Future.value("");
-      }
-      case "geoFenceChange": {
-        Map args = call.arguments;
-        String id = args["id"];
-        GlobalKey key = map[id];
-        if(key!=null){
-          AMapView view = key.currentWidget;
-          view?.onGeoFenceChange(args['status']);
-        }
-        return new Future.value("");
-      }
+      case "poiResult":
+        {
+          Map args = call.arguments;
+          map.forEach((k, v) {
+            if (v != null) {
+              AMapView view = v.currentWidget;
+              var l = args['list'];
+              if (view != null && view.onPoiResult != null) {
+                view?.onPoiResult(l);
+              }
+            }
+          });
 
+          return new Future.value("");
+        }
+      case "geoFenceChange":
+        {
+          Map args = call.arguments;
+          String id = args["id"];
+          GlobalKey key = map[id];
+          if (key != null) {
+            AMapView view = key.currentWidget;
+            view?.onGeoFenceChange(args['status']);
+          }
+          return new Future.value("");
+        }
     }
-    return new Future.value( "");
+    return new Future.value("");
   }
 
   static bool isSetKey = false;
@@ -423,10 +392,10 @@ class AMapView extends StatefulWidget {
   static void setApiKey(String apiKey) {
     MethodChannel c = const MethodChannel("flutter_amap");
     c.invokeMethod('setApiKey', apiKey);
-    isSetKey =  true;
+    isSetKey = true;
   }
 
-  static void poiSearch(LatLng latLng,String keyword,GlobalKey key) {
+  static void poiSearch(LatLng latLng, String keyword, GlobalKey key) {
     MethodChannel c = const MethodChannel("flutter_amap");
     c.invokeMethod('poiSearch', {
       'keyword': keyword,
@@ -436,7 +405,7 @@ class AMapView extends StatefulWidget {
     });
   }
 
-  static void moveCamera(LatLng latLng, GlobalKey key){
+  static void moveCamera(LatLng latLng, GlobalKey key) {
     MethodChannel c = const MethodChannel("flutter_amap");
     c.invokeMethod('moveCamera', {
       'id': key.toString(),
@@ -444,18 +413,13 @@ class AMapView extends StatefulWidget {
       'lng': latLng.longitude
     });
   }
-
-
 }
 
-class _AMapViewState extends State<AMapView>{
-
+class _AMapViewState extends State<AMapView> {
   @override
   void initState() {
-    AMapView.channel.invokeMethod('show', {
-      "mapView": widget.toMap(),
-      "id":widget.key.toString()
-    });
+    AMapView.channel.invokeMethod(
+        'show', {"mapView": widget.toMap(), "id": widget.key.toString()});
     super.initState();
   }
 
@@ -464,9 +428,7 @@ class _AMapViewState extends State<AMapView>{
   int _width;
   int _height;
 
-
-
-  void setSize(){
+  void setSize() {
     dynamic render = context.findRenderObject();
     Rect rect = render.paintBounds;
     dynamic trans = render.getTransformTo(null).getTranslation();
@@ -476,33 +438,31 @@ class _AMapViewState extends State<AMapView>{
     int height = rect.size.height.toInt();
 
     //如果已经隐藏了
-    if(x < 0){
+    if (x < 0) {
       return;
     }
 
-    if(x != _x || y != _y || width != _width
-        || height != _height){
+    if (x != _x || y != _y || width != _width || height != _height) {
       _x = x;
       _y = y;
       _width = width;
       _height = height;
       AMapView.channel.invokeMethod('rect', {
-        "id":widget.key.toString(),
+        "id": widget.key.toString(),
         "x": trans.x,
-        "y":trans.y,
-        "width":rect.size.width,
-        "height":rect.size.height});
-
+        "y": trans.y,
+        "width": rect.size.width,
+        "height": rect.size.height
+      });
     }
   }
 
-  void _trySetSize() async{
-
-    try{
+  void _trySetSize() async {
+    try {
       setSize();
-    }catch(e){
+    } catch (e) {
       print(e);
-      await new Future.delayed( new Duration(milliseconds: 10) );
+      await new Future.delayed(new Duration(milliseconds: 10));
       scheduleMicrotask(_trySetSize);
     }
   }
@@ -513,25 +473,20 @@ class _AMapViewState extends State<AMapView>{
     scheduleMicrotask(_trySetSize);
   }
 
-
   @override
   void didUpdateWidget(AMapView oldWidget) {
     super.didUpdateWidget(oldWidget);
     scheduleMicrotask(_trySetSize);
   }
 
-
   @override
   void dispose() {
-    AMapView.remove( widget.key );
+    AMapView.remove(widget.key);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-
-    );
+    return new Container();
   }
-
 }
