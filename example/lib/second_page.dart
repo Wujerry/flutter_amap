@@ -33,6 +33,10 @@ class _SecondPage extends State<SecondPage>{
           zoomLevel: 13.0,
           mapType: MapType.standard,
           showsUserLocation: true,
+          onPoiResult: (r){
+            print('poipoipoipoipoi');
+            print(r);
+          },
         onGeoFenceChange: (status){
             if(status == 1){
               print('ininininininininininininininin');
@@ -45,7 +49,12 @@ class _SecondPage extends State<SecondPage>{
             }
           print('ggggggg' + status.toString());
         },
-        geoFence: GeoFenceSetting(latLng: LatLng(29.66448, 106.4968),
+        onCameraChange: (Location location){
+                  print('hahahahahaha');
+                 print('cccccccccccc' + location.toString());
+                   AMapView.poiSearch(LatLng(location.latitude, location.longitude), '', _key0);
+                },
+        geoFence: GeoFenceSetting(latLng: LatLng(39.66448, 106.4968),
             radius: 100,
             key: _key0.toString()
         ),

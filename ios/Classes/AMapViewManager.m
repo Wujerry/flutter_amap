@@ -9,10 +9,13 @@
 #import "AMapView.h"
 
 @interface AMapViewManager() <MAMapViewDelegate>
+
 @end
 
 
 @implementation AMapViewManager
+
+
 
 - (UIView *)view {
     AMapView *mapView = [[AMapView alloc]init];
@@ -21,6 +24,8 @@
     mapView.delegate = self;
     return mapView;
 }
+
+
 -(id)initWithMessageChannel:(FlutterMethodChannel*)channel{
     if(self = [super init]){
         self.channel = channel;
@@ -31,6 +36,8 @@
 -(void)dealloc{
     NSLog(@"AMapViewManager dealloc");
 }
+
+
 
 /**
  * @brief 地图区域改变过程中会调用此接口 since 4.6.0
@@ -64,7 +71,19 @@
  * @param mapView       地图view
  * @param wasUserAction 标识是否是用户动作
  */
-- (void)mapView:(AMapView *)mapView mapDidMoveByUser:(BOOL)wasUserAction{}
+- (void)mapView:(AMapView *)mapView mapDidMoveByUser:(BOOL)wasUserAction{
+  
+    [self.channel invokeMethod:@"cameraUpdate"
+                     arguments:
+     @{
+       @"id": mapView.key,
+       @"latitude": @(mapView.centerCoordinate.latitude),
+       @"longitude": @(mapView.centerCoordinate.longitude),
+       @"accuracy": @(0.0),
+       @"altitude": @(0.0),
+       @"speed": @(0.0),
+       @"timestamp": @(0.0)}];
+}
 
 /**
  * @brief 地图将要发生缩放时调用此接口

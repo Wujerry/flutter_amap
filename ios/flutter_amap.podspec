@@ -16,6 +16,8 @@ A Flutter plugin use amap 高德地图flutter组件
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
   s.dependency 'AMap3DMap'
+  s.dependency 'AMapLocation'
+  s.dependency 'AMapSearch'
   
   s.ios.deployment_target = '8.0'
 end

@@ -7,10 +7,12 @@
 
 #import <Foundation/Foundation.h>
 #import <Flutter/Flutter.h>
+
 @interface AMapViewManager : NSObject
 
 
 @property (nonatomic, assign) FlutterMethodChannel *channel;
+
 
 
 - (UIView *)view;

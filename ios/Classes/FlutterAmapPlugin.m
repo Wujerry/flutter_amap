@@ -5,7 +5,7 @@
 #import "AMapView.h"
 #import <CoreLocation/CLLocation.h>
 
-@interface FlutterAmapPlugin()
+@interface FlutterAmapPlugin()<AMapSearchDelegate,AMapGeoFenceManagerDelegate>
 {
     NSMutableDictionary* _dic;
 }
@@ -26,9 +26,9 @@
     [registrar addMethodCallDelegate:instance channel:channel];
 }
 /*
--(void)dealloc{
-    NSLog(@"self dealloc");
-}
+ -(void)dealloc{
+ NSLog(@"self dealloc");
+ }
  */
 
 
@@ -56,12 +56,18 @@
         [self show:mapView key:title];
         result(@YES);
         
-    } else if([@"dismiss" isEqualToString:method ]) {
+    }else if ([@"poiSearch" isEqualToString:method]){
+        NSDictionary *args = call.arguments;
+        [self poiSearch:args[@"id"] lat:args[@"lat"] lng:args[@"lng"] keyword:args[@"keyword"]];
+    }else if ([@"moveCamera" isEqualToString:method]){
+        NSDictionary *args = call.arguments;
+        [self moveCamera:args[@"id"] lat:args[@"lat"] lng:args[@"lng"]];
+    }else if([@"dismiss" isEqualToString:method ]) {
         [self dismiss];
         result(@YES);
     }else if([@"rect" isEqualToString:method ]) {
         
-         NSDictionary *args = call.arguments;
+        NSDictionary *args = call.arguments;
         double x = [args[@"x"] doubleValue];
         double y = [args[@"y"] doubleValue];
         double width = [args[@"width"] doubleValue];
@@ -102,6 +108,7 @@
     amapView.showsIndoorMap =[mapView[@"showsIndoorMap"]boolValue];
     amapView.showsUserLocation =[mapView[@"showsUserLocation"]boolValue];
     amapView.showsIndoorMapControl =[mapView[@"showsIndoorMapControl"]boolValue];
+    amapView.userTrackingMode = MAUserTrackingModeFollow;
     
     
     amapView.zoomEnabled =[mapView[@"zoomEnabled"]boolValue];
@@ -116,12 +123,24 @@
     
     amapView.mapType =[mapView[@"mapType"]integerValue];
     
+    
     NSDictionary* centerCoordinate = [mapView objectForKey:@"centerCoordinate"];
     if(centerCoordinate && centerCoordinate!=(id)[NSNull null]){
         CLLocationCoordinate2D center = (CLLocationCoordinate2D){
             [centerCoordinate[@"latitude"]doubleValue], [centerCoordinate[@"longitude"]doubleValue]
         };
         amapView.centerCoordinate = center;
+    }
+    
+    NSDictionary* geoFence = [mapView objectForKey:@"geoFence"];
+    if(geoFence && geoFence!=(id)[NSNull null]){
+        self.geoFenceManager = [[AMapGeoFenceManager alloc] init];
+        self.geoFenceManager.delegate = self;
+        self.geoFenceManager.activeAction = AMapGeoFenceActiveActionInside | AMapGeoFenceActiveActionOutside | AMapGeoFenceActiveActionStayed; //设置希望侦测的围栏触发行为，默认是侦测用户进入围栏的行为，即AMapGeoFenceActiveActionInside，这边设置为进入，离开，停留（在围栏内10分钟以上），都触发回调
+        self.geoFenceManager.allowsBackgroundLocationUpdates = YES;  //允许后台定位
+        CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake([geoFence[@"lat"]doubleValue],[geoFence[@"lng"]doubleValue]);
+        [self.geoFenceManager addCircleRegionForMonitoringWithCenter:coordinate radius:[geoFence[@"radius"]doubleValue] customID:geoFence[@"customID"]];
+        
     }
     
     NSDictionary* limitRegion = [mapView objectForKey:@"limitRegion"];
@@ -144,13 +163,37 @@
     
 }
 
+- (void)amapGeoFenceManager:(AMapGeoFenceManager *)manager didAddRegionForMonitoringFinished:(NSArray<AMapGeoFenceRegion *> *)regions customID:(NSString *)customID error:(NSError *)error {
+    if (error) {
+        NSLog(@"创建失败 %@",error);
+    } else {
+        NSLog(@"创建成功");
+    }
+}
+
+- (void)amapGeoFenceManager:(AMapGeoFenceManager *)manager didGeoFencesStatusChangedForRegion:(AMapGeoFenceRegion *)region customID:(NSString *)customID error:(NSError *)error {
+    if (error) {
+        NSLog(@"status changed error %@",error);
+    }else{
+        NSLog(@"status changed success %@",[region description]);
+        [self.channel invokeMethod:@"geoFenceChange" arguments:@{
+                                                                 @"id":customID,
+                                                                 @"status":@(region.fenceStatus)
+                                                                 }];
+        
+    }
+}
+
 -(void)show:(NSDictionary*)mapView key:(NSString*)key{
-   NSLog(@"%lf", kCLDistanceFilterNone);
+    NSLog(@"%lf", kCLDistanceFilterNone);
     //将属性映射到view上面
     AMapView* amapView = (AMapView*)[self.manager view];
     amapView.key = key;
     [self updateViewProps:mapView amapView:amapView];
     _dic[key]  = amapView;
+    //初始化POI搜索
+    self.search = [[AMapSearchAPI alloc] init];
+    self.search.delegate = self;
     // navController.navigationBar.translucent = NO;
     [self.root.view addSubview:amapView];
     
@@ -162,6 +205,57 @@
     [view removeFromSuperview];
     [_dic removeObjectForKey:key];
     
+}
+
+-(void)moveCamera: (NSString*) key lat:(NSNumber*)lat lng:(NSNumber*)lng{
+    AMapView* view = _dic[key] ;
+    CLLocationCoordinate2D center = (CLLocationCoordinate2D){
+        [lat doubleValue], [lng doubleValue]
+    };
+    view.centerCoordinate = center;
+}
+
+-(void)poiSearch: (NSString*) key lat:(NSNumber*)lat lng:(NSNumber*)lng keyword:(NSString*)keyword{
+    
+//    self.mapPOIKey = key;
+    
+    AMapPOIAroundSearchRequest *request = [[AMapPOIAroundSearchRequest alloc] init];
+    
+    request.location            = [AMapGeoPoint locationWithLatitude:[lat doubleValue] longitude:[lng doubleValue]];
+    request.keywords            = keyword;
+    /* 按照距离排序. */
+    request.sortrule            = 0;
+    request.requireExtension    = YES;
+    request.offset = 10;
+    [self.search AMapPOIAroundSearch:request];
+}
+
+/* POI 搜索回调. */
+- (void)onPOISearchDone:(AMapPOISearchBaseRequest *)request response:(AMapPOISearchResponse *)response
+{
+    if (response.pois.count == 0)
+    {
+        return;
+    }
+    
+    NSMutableArray *arr = [NSMutableArray array];
+    for (int i = 0; i < response.pois.count; i ++) {
+        NSDictionary* _dic;
+        _dic = @{
+                 @"title": response.pois[i].name,
+                 @"lat": @(response.pois[i].location.latitude),
+                 @"lng": @(response.pois[i].location.longitude),
+                 @"address": response.pois[i].address
+                 };
+        [arr addObject:_dic];
+    }
+    NSArray *arrResult = [arr copy];
+    NSDictionary* result = @{
+//                             @"id": self.mapPOIKey,
+                             @"list": arrResult,};
+    [self.channel invokeMethod:@"poiResult" arguments:result];
+    
+    //解析response获取POI信息，具体解析见 Demo
 }
 
 
