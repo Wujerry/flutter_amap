@@ -11,6 +11,11 @@ public class AMapView extends TextureMapView {
 
     private String key;
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        this.onDestroy();
+    }
 
     public String getKey() {
         return key;
