@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -113,7 +114,11 @@ public class FlutterAmapPlugin implements MethodCallHandler {
             AMapView view = map.get(id);
             if (view != null) {
                 ViewGroup viewGroup = (ViewGroup) view.getParent();
-                viewGroup.removeView(view);
+                try {
+                    viewGroup.removeView(view);
+                }catch (Exception e){
+                    Log.d("Flutter_Amap",e.getMessage());
+                }
                 map.remove(id);
             }
         } else if ("moveCamera".equals(method)){
